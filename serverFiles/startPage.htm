@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <meta charset="utf-8">
+      <title>ESP-Home</title>
+      <link rel="stylesheet" type="text/css" href="/global.css">
+      <script src="/popup.js"></script>
+   </head>
+
+   <body>
+
+      <div class="rahmen">
+         <h2> Modul $MODULNAME</h2>
+         <p>$Info</p>
+ 
+         <h3>Modulwerte</h3>
+
+         <p>$Temperatur</p>
+         <p>$Schalter</p>
+         <p>$Input</p>
+
+        <h3>Aktionen</h3> 
+        <p><input class="link_button" type='button' onclick="location.href='/upload.htm';" value="Dateien hochladen per WLAN"></p>
+	<p><input class="link_button" type='button' onclick="location.href='/login.htm';" value="LUA-Dateien freischalten"></p>
+
+       <form method='POST' action='/' >
+          <p><input class="link_button" type='submit' name='reboot' value='Modul neu booten'></p>
+       </form>
+
+
+       <!-- **************************************************************************************************************
+       <!-- Trigger/Open The PopUp -->
+       <button class="link_button" id="popup_button">Testbutton</button>
+       <!-- The PopUp -->
+           <div id="my_popup" class="modal">
+             <!-- PopUp content -->
+             <div class="modal-content">
+    	       <span class="close">&times;</span>
+    	       <p>Überschrift des Pop-UP's<br/>
+               Bitte bestätige die Auswahl mit dem Button.
+               </p>
+               <form method='POST' action='/reboot.htm' >
+               -----------------------------------------------------------------------------------------------
+               <p><label> <input type="checkbox" name="name_c" value="value">Text</label></p>
+               -----------------------------------------------------------------------------------------------
+               <p><input class="link_button" type='submit' name='name_b' value='Ja'></p>
+               </form>
+             </div>
+           </div> 
+       <!-- Ende The PopUp -->
+
+       <br><br>
+       <div class='version'>V 1</div>
+       </div>
+   </body>
+</html>

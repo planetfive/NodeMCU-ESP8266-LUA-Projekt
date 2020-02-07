@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset='utf-8\'>
+<title>ESP8266-Login</title>
+<link rel="stylesheet" type="text/css" href="/global.css">
+</head>
+<body><div class="rahmen">
+<h2> Modul $MODULNAME</h2>
+<p>Fuer lua-Dateien ist ein Login noetig</p>
+
+<h3>$Login</h3>
+
+<br/>
+<form method="POST" action="/login.htm">
+   <p><label>Passwort eingeben  </label><input type="password" name="password" required></p>
+   <p><button class="link_button" name="btn_pw" type="submit">Login</button></p>
+ </form>
+<br/><br/>
+<p><input class="back_button" type='button' onclick="location.href='/upload.htm';" value="zum Upload"></p>
+</div>
+</body>
+</html>
