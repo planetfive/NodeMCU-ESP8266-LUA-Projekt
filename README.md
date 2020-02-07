@@ -20,19 +20,33 @@ Wesentlicher Bestandteil: [NodeMCU-HTTP-Server, etwas angepasst](https://github.
 ## Inbetriebnahme
 
 Für die Eiligen:
+
 Entpacken der Zip-Datei
+
 Modul mit Firmware "nodemcu-master-float.bin" mit z.B. "esptool.py" flashen ( "esptool.py --port /dev/ttyUSB0 erase_flash", dann "esptool.py --port /dev/ttyUSB0 write_flash --flash_size 4MB 0x00000 /eigeneVerzeichnisse/ESP_Lua/nodemcu-master-float.bin" )
+
 "ssid" und "pw" in "modulparameter.lua" anpassen
+
 Mit z.B. ESPlorer folgende Dateien uploaden: alle *.lua-Dateien aus dem Hauptverzeichniss, alle Dateien aus dem "serverFiles"-Verzeichniss und aus dem "LFS"-Verzeichniss die "lfs.img"-Datei.
+
 Modul reseten
+
 In die Kommandozeile von ESPlorer *node.flashreload("lfs.img")* eingeben und Send-Button drücken
+
 Wenns geklappt hat, resetet das Modul
+
 Zum Starten in die Kommandozeile *dofile("lua_start.lua")* eingeben. Send-Button drücken
+
 Zum automatischen Programmstart muss die "lua_start.lua"-Datei in "init.lua" umbenannt werden.
+
 Ausgaben ESPlorer beachten.
+
 Bei Erfolg sollte unter Anderem die IP-Adresse des Moduls angezeigt werden. Diese in den Browser eingeben. Testen :)
+
 Wichtig: Der Flash-Taster ( neben Micro-USB-Buchse ) des NodeMCU-Moduls wird benutzt um eine Endlos-Bootschleife zu unterbrechen. Hierbei wird die "init.lua"-Datei in "lua_start.lua" umbenannt.
+
 Der Einwahlmodus ins Heim-WLan wird mit einer blinkenden System-LED angezeigt.
+
 Falls die LED dauerhaft leuchtet, ist das Modul im Accespoint-Modus mit eigenem WLan.
 
 
@@ -42,9 +56,11 @@ Falls die LED dauerhaft leuchtet, ist das Modul im Accespoint-Modus mit eigenem 
 Folgende Links sind sehr hilfreich:
 
 *1* [Zentrale Anlaufstation](https://nodemcu.readthedocs.io/en/master/)
+
 Hier findet man eigentlich alles Wichtige zum Programmieren des ESP mit LUA.
 
 *2* [esptool.py und ESPlorer](https://nodemcu.readthedocs.io/en/master/getting-started/#esptoolpy)
+
 *3* [[Compile Lua into LFS image](https://nodemcu.readthedocs.io/en/master/getting-started/#compile-lua-into-lfs-image)
 
 *4* [MIT-Lizenz](https://opensource.org/licenses/mit-license.php)
