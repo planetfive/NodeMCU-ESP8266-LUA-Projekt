@@ -61,21 +61,33 @@ Hier findet man eigentlich alles Wichtige zum Programmieren des ESP mit LUA.
 
 *2* [esptool.py und ESPlorer](https://nodemcu.readthedocs.io/en/master/getting-started/#esptoolpy)
 
-*3* [[Compile Lua into LFS image](https://nodemcu.readthedocs.io/en/master/getting-started/#compile-lua-into-lfs-image)
+*3* [Compile Lua into LFS image](https://nodemcu.readthedocs.io/en/master/getting-started/#compile-lua-into-lfs-image)
 
 *4* [MIT-Lizenz](https://opensource.org/licenses/mit-license.php)
+
+
 
 Mit Hilfe obiger Links soll das Verständniss für die Inbetriebnahme des Moduls vermittelt werden.
 
 Die Beispielkonfiguration zeigt die Möglichkeiten der Software. Hier ist ein ds18b20-Temperatursensor an D5 angeschlossen. Ein DHT-Feuchtesensor ist programmiert, jedoch nicht getestet!
+
 In die "conditions.lua"-Datei programmiert man alles, was das Modul tun soll.
+
 In der "inputs.lua"-Datei kann die Funktionalität von Input-Pin's programmiert werden.
+
 Im serverFiles-Verzeichniss liegen die Dateien zum Betreiben des Servers. Der Server sollte auch mit *.ico und *.jpg-Dateien klarkommen. Der Kreativität sind wenig Grenzen gesetzt.
+
 Alle lua-Dateien, die nicht mehr verändert werden sollen, kann man in's LFS-Verzeichniss legen. Entsprechend der Beschreibung von obigem Link[3] packen, mit [LUA-Compile-Service](https://blog.ellisons.org.uk/article/nodemcu/a-lua-cross-compile-web-service/) kompilieren und aufs Modul uploaden.
+
 Der Befehl "node.flashreload("lfs.img")" erstellt den LFS-Bereich neu mit dem zuvor gebauten image.
+
 Dadurch ist es erst möglich mit Lua komplexere Programme für den ESP zu erstellen und den RAM-Verbrauch deutlich zu verkleinern.
+
 Ich hoffe, dass ich alle Themen wenigstens angerissen habe. Wer mehr Infos braucht, Verbesserungsvorschläge hat oder Fehler melden will:
+
 [Reinhold](reinhold.kreisel@gmail.com)
+
+
 
 Lizenz: MIT [4]
 
