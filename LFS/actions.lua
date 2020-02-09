@@ -2,6 +2,7 @@
 -- globale variablen fuer Temperatursensoren
 temp_ds18b20 = nil
 temp_dht = nil
+humi_dht = nil
 
 -- registrierte Actions-tabelle
 local all_actions = {}
@@ -11,19 +12,26 @@ local function action_ds18b20()
     sens_ds:read_temp(function(temp) print("ds18b20 readout done") temp_ds18b20 = sens_ds.temp end, parameter.sensor.ds18b20, sens_ds.C)
 end
 
+
 local function action_dht()
-   local status, temp, humi, temp_dec, humi_dec = dht.read(parameter.sensor.dht)
+   local status
+   status, temp_dht, humi_dht = dht.read(parameter.sensor.dht)
    if status == dht.OK then
       -- Float firmware using this example
-      print("DHT Temperature:"..temp..";".."Humidity:"..humi)
-      temp_dht = temp
-
-   elseif status == dht.ERROR_CHECKSUM then
-      print( "DHT Checksum error." )
-   elseif status == dht.ERROR_TIMEOUT then
-      print( "DHT timed out." )
+      print("DHT Temperatur:" .. temp_dht .. "; rel. Feuchte:" .. humi_dht)
+      return
+   end
+   temp_dht = nil
+   humi_dht = nil
+   if status == dht.ERROR_CHECKSUM then
+      print( "DHT Checksum error.", status )
+      return
+   end
+   if status == dht.ERROR_TIMEOUT then
+      print( "DHT timed out.", status )
    end
 end
+
 
 
 local function doActions()
@@ -82,6 +90,7 @@ if parameter.sensor then
          end
          if k == "dht" then
             print("Sensor dht mit Pin-NR:"..v.." vorhanden")
+            action_dht()
             all_actions.dht = action_dht
          end
       end

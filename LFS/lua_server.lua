@@ -87,15 +87,7 @@ httpServer:use('startPage.htm', nil, function(req)
       end
    end
    if temp_dht then  -- Feuchtesensoren vom Typ DHTXX vorhanden
-      local status, _ , _ , temp_dec, humi_dec = dht.read(parameter.sensor.dht)
-      if status == dht.OK then
-         -- Float firmware using this example
-         tempString = tempString .. "DHT Temperature:" .. temp_dec .. " - Humidity:"..humi_dec .. "<br/>"
-      elseif status == dht.ERROR_CHECKSUM then
-         print( "DHT Checksum error." )
-      elseif status == dht.ERROR_TIMEOUT then
-         print( "DHT timed out." )
-      end
+      tempString = tempString .. "DHT Temperature:" .. temp_dht .. " - Humidity:"..humi_dht .. "<br/>"
    end
 
    if req.method == "POST" then
