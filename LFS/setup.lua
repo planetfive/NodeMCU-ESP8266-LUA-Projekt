@@ -74,15 +74,7 @@ function setup_udp()
          end
       end
       if temp_dht then  -- Feuchtesensoren vom Typ DHTXX vorhanden
-         local status, _ , _ , temp_dec, humi_dec = dht.read(parameter.sensor.dht)
-         if status == dht.OK then
-            -- Float firmware using this example
-            tempString = tempString .. "DHT Temperature:" .. temp_dec .. " - Humidity:"..humi_dec .. "<br/>"
-         elseif status == dht.ERROR_CHECKSUM then
-            print( "DHT Checksum error." )
-         elseif status == dht.ERROR_TIMEOUT then
-            print( "DHT timed out." )
-         end
+         tempString = tempString .. "<br/>Temperatur:" .. temp_dht .. "__Feuchte:" .. humi_dht
       end
       msg = msg .. tempString .. ",0.0 ,nix," .. parameter.action_intervall
       print(msg)

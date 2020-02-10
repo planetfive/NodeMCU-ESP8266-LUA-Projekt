@@ -28,7 +28,7 @@ local function action_dht()
       return
    end
    if status == dht.ERROR_TIMEOUT then
-      print( "DHT timed out.", status )
+      print( "DHT timed out", status )
    end
 end
 
