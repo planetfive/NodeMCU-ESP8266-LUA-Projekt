@@ -9,7 +9,7 @@ end
 if file.exists("modulparameter.lua") then print("Lade Modulparameter") dofile("modulparameter.lua") end
 -- ende Parameter ************************************************************
 
-local myIP  -- verwendet in setup_udp()
+myIP = nil  -- verwendet in setup_udp() und start_udp()
 
 local actions
 function setup_basics() -- verwendet im servermode
@@ -35,7 +35,7 @@ function setup_basics() -- verwendet im servermode
          gpio.write(v, gpio.HIGH)
       end
    end
--- ende schalter  **********************************************
+   -- ende schalter  **********************************************
 end
 
 -- ********* UDP-Nachrichten aktivieren  *******************************************
@@ -80,12 +80,11 @@ function setup_udp()
       print(msg)
 
          -- ********************************************************
-         udp_skt:send(parameter.action_udp.port, parameter.action_udp.ip, msg)
-         end)
+      udp_skt:send(parameter.action_udp.port, parameter.action_udp.ip, msg)
+      end)
    end
 end
 -- ********** ende UDP *****************************************************************
-
 
 
 -- Modul-LED blinkt solange die Einwahl ins Wlan dauert *********************
@@ -110,6 +109,7 @@ function startup_station()
       dofile("lua_server.lua")
    else
       print("Modul-Mode nicht bekannt")
+      dofile("lua_sensor.lua")
    end
 end
 
@@ -145,7 +145,7 @@ wifi_got_ip_event = function(T)
   ledTimer:stop()
   ledTimer:unregister()
   ledTimer = nil
-  tmr.create():alarm(3000, tmr.ALARM_SINGLE, startup_station)
+  tmr.create():alarm(500, tmr.ALARM_SINGLE, startup_station)
   -- startup()
 end
 
