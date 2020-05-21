@@ -24,8 +24,8 @@ modulparameter {
 	--]]
 --        action_udp =	{ port = 15000, ip = "192.168.1.124", blocking = 0 }, -- blocking*action_intervall ergibt die Zeit, in der die UDP-Funktion blockiert wird
 
-	ssid	=	"F7490",	-- Name Wlan-Heimnetz
-	pw	=	"opa+alpha",	-- Passwort Wlan-Heimnetz
+	ssid	=	"my_ssid",	-- Name Wlan-Heimnetz
+	pw	=	"my_passw",	-- Passwort Wlan-Heimnetz
         -- Falls die Werte für ssid oder pw fehlen, oder falsch sind, geht das Modul beim Booten in den Acesspoint-Modus
 
 	lua_pw	=	"passwort"	,	-- Passwort schaltet den Upload von lua-Dateien fuer 10 Min. frei (in "login.htm")
