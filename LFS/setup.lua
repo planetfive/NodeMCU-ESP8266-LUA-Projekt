@@ -1,4 +1,4 @@
-
+starttime = tmr.now()
 -- allgemeine Parameter aus Datei "modulparameter.lua" einlesen **************
 parameter = {}
 function modulparameter(p)
@@ -6,41 +6,53 @@ function modulparameter(p)
 	for k,v in pairs(p) do print(k,v) end
 end
 
-if file.exists("modulparameter.lua") then print("Lade Modulparameter") dofile("modulparameter.lua") end
+if file.exists("modulparameter.lua") then
+   print("Lade Modulparameter")
+   dofile("modulparameter.lua")
+else
+   print("Keine modulparameter.lua-Datei gefunden - Starte als AP im Servermode")
+   print("Das Passwort zum Hochladen von lua-Dateien lautet <passwort>")
+   parameter.mode = "Server"
+   parameter.lua_pw = "passwort"
+end
+
+local _, reason = node.bootreason()
+print("Bootreason:", reason)
+if reason == 0 then
+   parameter.mode = "Server"
+end
+reason = nil
+
 -- ende Parameter ************************************************************
 
 myIP = nil  -- verwendet in setup_udp() und start_udp()
 
 local actions
 function setup_basics() -- verwendet im servermode
-   -- ***********  installiere actions und conditions  ******************************
+   -- ***********  installiere actions  ******************************
       actions = require("actions")
    -- actions.register("myAction", function() print("this is my action") end )
+      actions.registerSensors()
+      actions.registerMyActions()
       actions.start()
       -- actions.printActions()
    -- ***********  ende actions  ****************************************************
 
-   -- **********  installiert inputs.lua ********
-   if file.exists("inputs.lua") then
-      print("binde inputs.lua ein")
-      dofile("inputs.lua")
+   -- **********  installiert my_setup.lua (wird nicht periodisch aufgerufen wie actions) ********
+   if file.exists("my_setup.lua") then
+      print("binde my_setup.lua ein")
+      dofile("my_setup.lua")
    end
-   -- **********  ende inputs  ******************
-
-   -- schalter initialisieren  ********************************
-   if parameter.schalter then
-      for k,v in pairs(parameter.schalter) do
-         print(k .. " mit Pin:" .. v .. " vorhanden")
-         gpio.mode(v, gpio.OUTPUT)
-         gpio.write(v, gpio.HIGH)
-      end
-   end
-   -- ende schalter  **********************************************
+   -- **********  ende my_setup  ******************
 end
 
--- ********* UDP-Nachrichten aktivieren  *******************************************
+-- ********* UDP-Nachrichten aktivieren  (im Server-Mode)  ***************************
 function setup_udp()
    if parameter.action_udp then
+
+      local msg = "Fehler in 'udpMessage.lua':"
+      local udp,err = assert(loadfile("udpMessage.lua"))
+
       local udp_skt = net.createUDPSocket()
       udp_skt:on("sent",function(s)
          print("sent")
@@ -55,33 +67,17 @@ function setup_udp()
             return
          end
          udp_count = parameter.action_udp.blocking
-         -- ** die bedingung festlegen und den sendetext generieren
-         local msg = parameter.name .."," .. myIP .. ","
-
-      local tempString = ""
-      if temp_ds18b20 then -- ds18b20-Temperatursensor(en) vorhanden
-         for addr, temp in pairs(temp_ds18b20) do
-            local hexstring = ('%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X'):format(addr:byte(1,8)) -- Sensor-ROM-Code als Hex darstellen
-            if parameter.alias then  -- hier werden die Aliase fuer die ROM-Codes gesetzt (falls vorhanden )
-               for k,v in pairs(parameter.alias) do
-                   if hexstring == k then
-                      hexstring = v
-                      break
-                   end
-               end
-            end
-            tempString = tempString .. string.format("Sensor %s: %s °C", hexstring, temp)
-         end
+      
+      if udp == nil then
+         print(msg .. err)
+      else
+         msg = udp()
       end
-      if temp_dht then  -- Feuchtesensoren vom Typ DHTXX vorhanden
-         tempString = tempString .. "<br/>Temperatur:" .. temp_dht .. "__Feuchte:" .. humi_dht
-      end
-      msg = msg .. tempString .. ",0.0 ,nix," .. parameter.action_intervall
-      print(msg)
-
-         -- ********************************************************
+--      local msg = dofile("udpMessage.lua")
+ 
       udp_skt:send(parameter.action_udp.port, parameter.action_udp.ip, msg)
       end)
+
    end
 end
 -- ********** ende UDP *****************************************************************
@@ -102,14 +98,21 @@ end
 local ledTimer
 -- ende blinken ***************************************************************
 
+local station_up = nil
+
 function startup_station()
    if parameter.mode == "Server" then
       setup_basics()
       setup_udp()
       dofile("lua_server.lua")
-   else
-      print("Modul-Mode nicht bekannt")
+   elseif parameter.mode == "Sensor" then
+      print("starte Sensormode")
       dofile("lua_sensor.lua")
+   elseif parameter.mode == "specialSensor" then
+      print("starte special Sensormode")
+      dofile("lua_specialsensor.lua")
+   else
+   print("Mode nicht bekannt")
    end
 end
 
@@ -142,11 +145,15 @@ wifi_got_ip_event = function(T)
   print("Wifi connection is ready! IP-address is: "..T.IP)
   myIP = T.IP
   gpio.write(modulLed,gpio.HIGH) -- Modul-LED ausschalten
-  ledTimer:stop()
-  ledTimer:unregister()
-  ledTimer = nil
-  tmr.create():alarm(500, tmr.ALARM_SINGLE, startup_station)
-  -- startup()
+  if ledTimer then
+     ledTimer:stop()
+     ledTimer:unregister()
+     ledTimer = nil
+  end
+  if station_up == nil then
+     tmr.create():alarm(500, tmr.ALARM_SINGLE, startup_station)
+     station_up = true
+  end
 end
 
 wifi_disconnect_event = function(T)
@@ -183,25 +190,44 @@ wifi_disconnect_event = function(T)
 end
 -- ende wifi callbacks **************************************************************************************************************
 
--- Installiere Reset in den LUA-Standardeingabemode - die Datei init.lua wird umbenannt ********
-function gpio0call(_, _, _)
-   if file.exists("init.lua") then
-      print("call gpio0 - rename init.lua --> lua_start.lua")
-      if file.exists("lua_start.lua") then file.remove("lua_start.lua") end
-      file.rename("init.lua","lua_start.lua")
-   elseif file.exists("lua_start.lua") then
-      print("call gpio0 - rename lua_start.lua --> init.lua")
-      if file.exists("init.lua") then file.remove("init.lua") end
-      file.rename("lua_start.lua","init.lua")
-   end
-   print("resete Modul")
-   node.restart()
+-- specialSensor-Modus -----------------------------------------------------
+function motionDetect()
+   gpio.mode(parameter.input["Motion"], gpio.INPUT, gpio.PULLUP)
+   return ( gpio.read(parameter.input["Motion"]) == gpio.HIGH )
 end
 
-gpio.mode(3, gpio.INT, gpio.PULLUP)
-gpio.trig(3, "up", gpio0call)
--- ende Reset **********************************************************************************
-
+if parameter.mode == "specialSensor" then
+   print("specialMode wird ausgefuehrt")
+   gpio.mode(2, gpio.OUTPUT) -- schaltet einen Transistor mit ca 50mA Stromverbrauch
+   gpio.write(2, gpio.HIGH)  -- das trigert einen Akku (Powerbank)
+   -- tmr.create():alarm(20, tmr.ALARM_SINGLE, function() gpio.write(2, gpio.LOW) end )
+   if rtcmem.read32(10) ~= 112233 then
+      if motionDetect() then
+         print("detect true")
+         print("lfz", tmr.now() - starttime)
+         -- vorbereitung zum senden der nachricht
+         rtcmem.write32(10, 112233)
+         -- tmr.create():alarm(20, tmr.ALARM_SINGLE, function() rtctime.dsleep(100, 0) end)-- aufwachen mit WiFi
+         rtctime.dsleep(10, 0)
+         return
+      else
+         print("detect false")
+         print("lfz", tmr.now() - starttime)
+         -- beim nächsten Aufwachen kein WiFi
+         if rtcmem.read32(11) < 1200 then
+            rtcmem.write32(11, rtcmem.read32(11) + 1)
+            rtcmem.write32(10, 0)
+            tmr.create():alarm(160, tmr.ALARM_SINGLE, function() rtctime.dsleep(parameter.action_intervall*1000000, 4) end) -- aufwachen ohne WiFi
+            return
+         end
+      end
+   else
+      -- nachricht wird gesendet
+      print("lfz", tmr.now() - starttime)
+      print("Sende Motion-Nachricht")
+   end
+end
+-- ende specialSensor-Modus --------------------------------------------------
 
 
 -- ************* wifi definieren ***********************************************************

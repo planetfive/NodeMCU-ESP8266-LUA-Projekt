@@ -44,6 +44,7 @@ end
 -- klassen-tabelle
 local actions = {}
 
+-- timer für den regelmässigen Aufruf der actions
 local act_t = nil
 
 function actions.start()
@@ -80,7 +81,8 @@ end
 
 
 -- suche nach sensoren in tabelle parameter und registriere sie in all_actions
-if parameter.sensor then
+function actions.registerSensors()
+   if parameter.sensor then
       for k,v in pairs(parameter.sensor) do
          if k == "ds18b20" then
             print("Sensor ds18b20 mit Pin-NR:"..v.." vorhanden")
@@ -94,24 +96,25 @@ if parameter.sensor then
             all_actions.dht = action_dht
          end
       end
-end
---end
-
-
--- conditions.lua einbinden
-if file.exists("conditions.lua") then
-   print("conditions.lua exists")
-   local conditions,err = assert(loadfile("conditions.lua"))
-   if conditions == nil then print("'conditions.lua:'Fehler in loadfile:" .. err)
-   else
-      tbl = conditions()
-      for k, v in pairs(tbl) do
-         print("condition hinzugefügt:" , v)
-         all_actions[k] = v
-      end
    end
 end
 
+
+-- conditions.lua in all_actions registrieren
+function actions.registerMyActions()
+   if file.exists("my_actions.lua") then
+      print("my_actions.lua exists")
+      local actions,err = assert(loadfile("my_actions.lua"))
+      if actions == nil then print("'my_actions.lua:'Fehler in loadfile:" .. err)
+      else
+         tbl = actions()
+         for k, v in pairs(tbl) do
+            print("action hinzugefügt:" , v)
+            all_actions[k] = v
+         end
+      end
+   end
+end
 
 return actions
 
